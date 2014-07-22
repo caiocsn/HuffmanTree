@@ -10,6 +10,12 @@ Huffman::Huffman(Frequency freq)
     //this->showHash();
 }
 
+Huffman::Huffman(Tree *t){
+    this->setTree(t);
+    dictionary = new QHash<unsigned char, QString>;
+    this->makeHash();
+}
+
 Tree * Huffman::makeHuffman(){
     QList<Node*> * list;
     Node * root;

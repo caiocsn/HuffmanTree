@@ -1,5 +1,4 @@
 HEADERS += \
-    queue.h \
     node.h \
     tree.h \
     compress.h \
@@ -7,7 +6,6 @@ HEADERS += \
     huffman.h
 
 SOURCES += \
-    queue.cpp \
     node.cpp \
     tree.cpp \
     compress.cpp \

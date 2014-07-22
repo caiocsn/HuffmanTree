@@ -15,7 +15,6 @@ void Compress::setFile(QString path){
         file.open(QIODevice::ReadOnly);
         QByteArray data = file.readAll();
         this->file = data ;
-        qDebug() << data.size();
     }
     else{
         qDebug() << path;
@@ -59,18 +58,17 @@ QString fill(QString bin, int n){
     return bin;
 }
 
-int Compress::make(){
+int Compress::encode(){
     QByteArray file = this->getFile();
     Frequency frequecy = Frequency(file);
     Huffman huff(frequecy);
 
-    QByteArray tree;
-    tree.append(huff.getTree()->createRep());
-    int treeSize = tree.size();
+    QByteArray array = frequecy.encondeArray();
+    int arraySize = array.size();
 
     QString name = this->fileName;
 
-    qDebug() << "Compressing:" << name;
+    qDebug() << "Encoding:" << name;
 
     QString encoded;
 
@@ -93,15 +91,15 @@ int Compress::make(){
     }
 
     QString garbageSizeToBit = fill(QString::number(garbageSize,10),3);
-    QString treeSizeToBit = fill(QString::number(treeSize,10),13);
+    QString arraySizeToBit = fill(QString::number(arraySize,10),13);
     QString nameSizeToBit = fill(QString::number(name.size(),10),8);
 
     QByteArray compressed;
     compressed.append(garbageSizeToBit);
-    compressed.append(treeSizeToBit);
+    compressed.append(arraySizeToBit);
     compressed.append(nameSizeToBit);
     compressed.append(name);
-    compressed.append(tree);
+    compressed.append(array);
     compressed.append(encodedChar);
 
     QFile out("out.huff");
@@ -110,56 +108,68 @@ int Compress::make(){
     out.write(compressed);
     out.close();
 
+    double compressedSize = compressed.size();
+    double fileSize = file.size();
+    double compressionRate = 1 - compressedSize/fileSize;
+
+    qDebug() << "Compression rate:" << compressionRate*100 << "%";
+
     return 0;
 }
 
-int Compress::extract(){
+int Compress::decode(){
     QByteArray file = this->getFile();
-    qDebug() << "Descompactando:" << this->fileName;
+
+    qDebug() << "Decoding:" << this->fileName;
 
     bool convert;
     int garbageSize = file.mid(0,3).toInt(&convert,10);
-    int treeSize = file.mid(3,13).toInt(&convert,10);
+    int arraySize = file.mid(3,13).toInt(&convert,10);
     int nameSize = file.mid(16,8).toInt(&convert,10);
 
     QString name = file.mid(24,nameSize);
-    QString tree = file.mid(24 + nameSize, treeSize);
+    QByteArray array = file.mid(24 + nameSize, arraySize);
 
 
-    Tree * tr = new Tree(tree);
-
+    Frequency freq(0,array);
+    Huffman huff(freq);
     QString contentBin;
 
-    for(int i = 24 + nameSize + treeSize; i < file.size(); i++){
+    for(int i = 24 + nameSize + arraySize; i < file.size(); i++){
         unsigned char c = file.at(i);
         int decimal = c;
         contentBin.append(fill(QString::number(decimal,2),8));
     }
 
     QByteArray decoded;
-    Node * n = tr->root();
-
+    Node * n = huff.getTree()->root();
 
     for(int i = 0; i <= contentBin.size()-garbageSize; i++) {
         if (n->isLeaf()) {
             decoded.append(n->key());
-            n = tr->root();
+            n = huff.getTree()->root();
             i--;
         }
         else {
             if (contentBin.at(i) == '0') {
-                n = n->left();
+                if(n->left() != NULL)
+                    n = n->left();
+                else
+                     qDebug() << "Warning: File corrupted";
             }
             else if (contentBin.at(i) == '1') {
-                n = n->right();
+                if(n->right()!= NULL)
+                    n = n->right();
+                else
+                     qDebug() << "Warning: File corrupted";
             }
             else {
-                qDebug() << "Error: File corrupted";
+                qDebug() << "Warning: File corrupted";
             }
+
         }
     }
 
-    qDebug() << decoded.size();
     QFile out(name);
     out.resize(0);
     out.open(QIODevice::ReadWrite);

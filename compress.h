@@ -22,9 +22,9 @@ public:
     // Retorna o arquivo de input
     QByteArray getFile();
     // Comprime o arquivo
-    int make();
+    int encode();
     // Extrai o arquivo
-    int extract();
+    int decode();
 private:
     // Seta o arquivo de entrada
     void setFile(QString path);

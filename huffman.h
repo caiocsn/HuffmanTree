@@ -13,6 +13,7 @@ private:
     QHash<unsigned char, QString> * dictionary;
 public:
     Huffman(){}
+    Huffman(Tree * t);
     Huffman(Frequency freq);
     // Seta a árvore a ser utilizada
     void setTree(Tree * t);

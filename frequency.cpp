@@ -11,6 +11,12 @@ Frequency::Frequency(QByteArray file)
     //this->showFrequency();
 }
 
+Frequency::Frequency(int a, QByteArray freq){
+    this->decodeArray(freq);
+    this->makeList();
+    this->sort();
+}
+
 void Frequency::setFile(QByteArray file){
     if(file!= NULL)
     this->input = file;
@@ -71,4 +77,51 @@ void Frequency::sort(){
 
 QList<Node*> *Frequency::getList(){
     return this->frequencyList;
+}
+
+QString Frequency::fill(QString bin, int n){
+    int size = bin.size();
+    if(size > n)
+        qDebug() << "Warning: Overflow.";
+    for(int i=0; i< n - size; i++)
+        bin.prepend('0');
+    return bin;
+}
+
+QByteArray Frequency::encondeArray(){
+    QByteArray aux;
+    for(int i = 0; i < 256; i++){
+        bool convert;
+        QString bin = fill(QString::number(this->frequency[i],2),24);
+        unsigned char n1 = bin.mid(0,8).toInt(&convert,2);
+        unsigned char n2 = bin.mid(8,8).toInt(&convert,2);
+        unsigned char n3 = bin.mid(16,8).toInt(&convert,2);
+        aux.append(i);
+        aux.append(n1);
+        aux.append(n2);
+        aux.append(n3);
+    }
+    return aux;
+}
+
+void Frequency::decodeArray(QByteArray array){
+    int * aux = new int[256];
+
+    for(int i = 0; i < 256 ; i++)
+        aux[i] = 0;
+
+    for(int i = 0; i< array.size(); i+=4){
+        bool convert;
+        unsigned char index = array.at(i);
+        unsigned char n1 = array.at(i+1);
+        unsigned char n2 = array.at(i + 2);
+        unsigned char n3 = array.at(i + 3);
+        QString bin = fill(QString::number(n1,2),8);
+        bin.append(fill(QString::number(n2,2),8));
+        bin.append(fill(QString::number(n3,2),8));
+        int freq = bin.toInt(&convert,2);
+        aux[index] = freq;
+    }
+    this->frequency = aux;
+
 }
