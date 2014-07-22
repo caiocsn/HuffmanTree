@@ -2,7 +2,7 @@
 #include "compress.h"
 
 int main(){
-    Compress teste = Compress("C:/Qt/teste.txt");
+    Compress teste = Compress("C:/Qt/teste.jpg");
     teste.make();
     Compress teste1 = Compress("C:/Users/Caio/Documents/QtProjects/build-HuffmanTree-Desktop_Qt_5_3_MinGW_32bit-Debug/out.huff");
     teste1.extract();

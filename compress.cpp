@@ -13,9 +13,9 @@ void Compress::setFile(QString path){
 
     if(file.exists()){
         file.open(QIODevice::ReadOnly);
-        QByteArray blob = file.readAll();
-        this->file = blob;
-        //qDebug() << blob;
+        QByteArray data = file.readAll();
+        this->file = data ;
+        qDebug() << data.size();
     }
     else{
         qDebug() << path;
@@ -92,9 +92,9 @@ int Compress::make(){
             encodedChar.append(c);
     }
 
-    QString garbageSizeToBit = fill(QString::number(garbageSize,2),3);
-    QString treeSizeToBit = fill(QString::number(treeSize,2),13);
-    QString nameSizeToBit = fill(QString::number(name.size(),2),8);
+    QString garbageSizeToBit = fill(QString::number(garbageSize,10),3);
+    QString treeSizeToBit = fill(QString::number(treeSize,10),13);
+    QString nameSizeToBit = fill(QString::number(name.size(),10),8);
 
     QByteArray compressed;
     compressed.append(garbageSizeToBit);
@@ -118,9 +118,9 @@ int Compress::extract(){
     qDebug() << "Descompactando:" << this->fileName;
 
     bool convert;
-    int garbageSize = file.mid(0,3).toInt(&convert,2);
-    int treeSize = file.mid(3,13).toInt(&convert,2);
-    int nameSize = file.mid(16,8).toInt(&convert,2);
+    int garbageSize = file.mid(0,3).toInt(&convert,10);
+    int treeSize = file.mid(3,13).toInt(&convert,10);
+    int nameSize = file.mid(16,8).toInt(&convert,10);
 
     QString name = file.mid(24,nameSize);
     QString tree = file.mid(24 + nameSize, treeSize);
@@ -159,6 +159,7 @@ int Compress::extract(){
         }
     }
 
+    qDebug() << decoded.size();
     QFile out(name);
     out.resize(0);
     out.open(QIODevice::ReadWrite);
