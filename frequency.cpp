@@ -91,6 +91,7 @@ QString Frequency::fill(QString bin, int n){
 QByteArray Frequency::encondeArray(){
     QByteArray aux;
     for(int i = 0; i < 256; i++){
+        if(this->frequency[i] >0 ){
         bool convert;
         QString bin = fill(QString::number(this->frequency[i],2),24);
         unsigned char n1 = bin.mid(0,8).toInt(&convert,2);
@@ -100,6 +101,7 @@ QByteArray Frequency::encondeArray(){
         aux.append(n1);
         aux.append(n2);
         aux.append(n3);
+        }
     }
     return aux;
 }
