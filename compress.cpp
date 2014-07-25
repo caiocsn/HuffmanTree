@@ -1,11 +1,12 @@
 #include "compress.h"
 #include "QDebug"
 
-Compress::Compress(QString path)
+Compress::Compress(QString path, QString output)
 {
     this->setFile(path);
     this->setName(path);
     this->setPath(path);
+    this->outputName = output;
 }
 
 void Compress::setFile(QString path){
@@ -102,7 +103,7 @@ int Compress::encode(){
     compressed.append(array);
     compressed.append(encodedChar);
 
-    QFile out("out.huff");
+    QFile out(this->outputName);
     out.resize(0);
     out.open(QIODevice::ReadWrite);
     out.write(compressed);
@@ -170,7 +171,7 @@ int Compress::decode(){
         }
     }
 
-    QFile out(name);
+    QFile out(this->outputName + name);
     out.resize(0);
     out.open(QIODevice::ReadWrite);
     out.write(decoded);

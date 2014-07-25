@@ -13,10 +13,11 @@ class Compress
 private:
     QString fileName;
     QString filePath;
+    QString outputName;
     QByteArray file;
 public:
     Compress(){}
-    Compress(QString path);
+    Compress(QString path, QString output);
     // Imprime o arquivo de input
     void showInput();
     // Retorna o arquivo de input

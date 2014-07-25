@@ -1,8 +1,7 @@
 #include <QCoreApplication>
 #include <QDataStream>
 
-#include "encoding.h"
-#include "decoding.h"
+#include "compress.h"
 
 void showHelpMe(){
     qDebug("|-------|Huffman Compressor Help|-------|");
@@ -17,14 +16,6 @@ void showHelpMe(){
 
 int main(int argc, char *argv[])
 {
-
-//    Encoding * Encode = new Encoding;
-//    Encode->encodeFile("in.bmp","out.huff");
-//    return 0;
-
-//    Decoding * Decode = new Decoding;
-//    Decode->decodeFile("out.huff","");
-//    return 0;
 
     QString a;
     a = argv[1];
@@ -44,26 +35,29 @@ int main(int argc, char *argv[])
 
         //Compression Standart.
         else if(a == "-c"){
-            Encoding * Encode = new Encoding;
+            Compress huff();
             //Compression with different path of output file.
             if(c == "-o"){
                 if(d.contains(".huff")){
-                    Encode->encodeFile(b,d);
+                    huff = Compress(b,d);
+                    huff.encode();
                 } else {
                     qDebug() << "Invalid command. Type -h to get help.";
                 }
             } else {
-                Encode->encodeFile(b,"out.huff");
+                huff = Compress(b,"out.huff")
+                huff.encode();
             }
 
         }
         //Descompression with different path of output file.
         else if(a.contains(".huff")){
-            Decoding * Decode = new Decoding;
+            Compress huff();
             if(b=="-d"){
                 Decode->decodeFile(a,c);
             } else {
-                Decode->decodeFile(a,"");
+                huff = Compress(a,"");
+                huff.decode();
             }
         } else {
             qDebug() << "Invalid command. Type -h to get help.";
@@ -76,3 +70,4 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
